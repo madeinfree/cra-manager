@@ -24,6 +24,16 @@ v0.0.2 Beta - [Download](https://github.com/madeinfree/cra-manager/releases/tag/
 - run stop command (react-scripts stop)
 - logs
 
+# Manage Dependency
+
+## Install
+
+![Install-Dep](./gifs/dep-install.gif)
+
+## Uninstall
+
+![Uninstall-Dep](./gifs/dep-remove.gif)
+
 # LICENSE
 
 MIT
