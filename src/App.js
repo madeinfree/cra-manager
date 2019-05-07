@@ -83,6 +83,9 @@ function App(props) {
             Create New Project
           </Button>
         </div>
+        <div style={{ textAlign: 'center', color: '#ccc', marginTop: 10 }}>
+          version 0.0.1
+        </div>
         <List divided>
           {folderInfo.payload.map((dir, index) => (
             <List.Item
