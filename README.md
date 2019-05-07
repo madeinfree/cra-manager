@@ -2,7 +2,7 @@
 
 CRA Manager can live your life well.
 
-v0.0.1 Beta - [Download](https://github.com/madeinfree/cra-manager/releases/tag/v0.0.1)
+v0.0.2 Beta - [Download](https://github.com/madeinfree/cra-manager/releases/tag/v0.0.1)
 
 # Create Project
 

@@ -32,7 +32,7 @@ function App(props) {
   }
 
   React.useEffect(() => {
-    const ioSocket = io('http://localhost:3001');
+    const ioSocket = io('http://localhost:29966');
     ioSocket.on('connect', () => {
       setSocket(ioSocket);
     });
@@ -84,7 +84,14 @@ function App(props) {
           </Button>
         </div>
         <div style={{ textAlign: 'center', color: '#ccc', marginTop: 10 }}>
-          version 0.0.1
+          version 0.0.2 <br />
+          Design by{' '}
+          <a
+            style={{ color: '#ccc' }}
+            href="https://www.facebook.com/haowei.liou"
+          >
+            Whien
+          </a>
         </div>
         <List divided>
           {folderInfo.payload.map((dir, index) => (
