@@ -1,0 +1,7 @@
+.folder_info__list__item {
+  background-color: #000;
+  transition: all 1s;
+}
+.folder_info__list__item:hover {
+  background-color: #cfcfcf;
+}
