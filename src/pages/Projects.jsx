@@ -14,9 +14,7 @@ import { withRouter } from 'react-router-dom';
 function Projects(props) {
   const name = props.match.params.name;
   const [logs, setLogs] = React.useState([]);
-  const [port, setPort] = React.useState(3000);
   const [portIsAlready, setPortIsAlready] = React.useState(false);
-  const [listening, setListening] = React.useState(false);
   const [deps, setDeps] = React.useState([]);
   const [version, setVersion] = React.useState('');
   const [installDepName, setInstallDepName] = React.useState('');
@@ -26,18 +24,24 @@ function Projects(props) {
         return state.concat(data.message);
       });
       if (data.message.indexOf('Something is already') >= 0) {
-        setListening(false);
         setPortIsAlready(true);
-      } else if (data.message.indexOf('PROCESS IS KILLED') >= 0) {
-        setListening(false);
-      } else {
-        setPortIsAlready(false);
       }
-      if (data.message.indexOf('----END----')) {
+
+      if (data.message.indexOf('----END----') >= 0) {
         props.socket.emit('get:projectDeps', { name });
       }
+      if (data.message.indexOf('Compiled successfully!') >= 0) {
+        props.setInstanceStatus(state => {
+          return Object.assign({}, state, {
+            [name]: {
+              ...state[name],
+              status: 'start'
+            }
+          });
+        });
+      }
     },
-    [name, props.socket]
+    [name, props]
   );
   function updateDeps(data) {
     setVersion(data.message.version);
@@ -53,15 +57,13 @@ function Projects(props) {
       props.socket.addEventListener('echo:projectDeps', updateDeps);
       props.socket.addEventListener('echo:createLogs', updateLogsCallback);
       props.socket.emit('get:projectDeps', { name });
-      return () => {
-        props.socket.emit('projectKill', {
-          name
-        });
-        props.socket.removeEventListener('echo:projectDeps', updateDeps);
-        props.socket.removeEventListener('echo:createLogs', updateLogsCallback);
-      };
     }
+    return () => {
+      props.socket.removeEventListener('echo:projectDeps', updateDeps);
+      props.socket.removeEventListener('echo:createLogs', updateLogsCallback);
+    };
   }, [name, props.socket, updateLogsCallback]);
+
   return (
     <Segment placeholder>
       <Header icon>
@@ -70,13 +72,12 @@ function Projects(props) {
       </Header>
       <Segment.Inline>
         <Button
-          disabled={listening}
+          disabled={props.instanceStatus[name].status === 'start'}
           onClick={() => {
-            setListening(true);
             setLogs([]);
             props.socket.emit('projectStart', {
               name,
-              port
+              port: props.instanceStatus[name].port
             });
           }}
           basic
@@ -86,13 +87,20 @@ function Projects(props) {
         </Button>
         <Button
           onClick={() => {
-            setListening(false);
             setLogs(['PROCESS KILLED !']);
             props.socket.emit('projectKill', {
               name
             });
+            props.setInstanceStatus(state => {
+              return Object.assign({}, state, {
+                [name]: {
+                  ...state[name],
+                  status: 'stop'
+                }
+              });
+            });
           }}
-          disabled={!listening}
+          disabled={props.instanceStatus[name].status === 'stop'}
           basic
           color="red"
         >
@@ -103,8 +111,17 @@ function Projects(props) {
       <Input
         error={portIsAlready}
         label="PORT"
-        value={port}
-        onChange={e => setPort(e.target.value)}
+        value={props.instanceStatus[name].port}
+        onChange={(_, data) => {
+          props.setInstanceStatus(state => {
+            return Object.assign({}, state, {
+              [name]: {
+                ...state[name],
+                port: parseInt(data.value, 10)
+              }
+            });
+          });
+        }}
         type="text"
       />
       <Segment style={{ margin: 0 }} basic>

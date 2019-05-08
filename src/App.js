@@ -22,7 +22,7 @@ function App(props) {
   const [folderInfo, setFolderInfo] = React.useState({
     payload: []
   });
-  const [instanceStatus, setInstanceStatus] = React.useState({});
+  const [instanceStatus, setInstanceStatus] = React.useState(null);
 
   function updateFolderInfo(data) {
     const folders = data.payload;
@@ -31,13 +31,13 @@ function App(props) {
 
     folders.forEach(folder => {
       instances[folder] = {
-        status: 'stop'
+        status: 'stop',
+        port: 3000
       };
     });
 
     setInstanceStatus(instances);
   }
-  console.log(instanceStatus);
 
   function emitFolderInfo(ioSocket) {
     ioSocket.emit('get:folderInfo');
@@ -110,7 +110,7 @@ function App(props) {
             <List.Item
               key={index}
               className={
-                instanceStatus[dir] && instanceStatus[dir].status === 'start'
+                instanceStatus && instanceStatus[dir].status === 'start'
                   ? 'folder_info__list__item__start'
                   : 'folder_info__list__item__stop'
               }
@@ -148,21 +148,24 @@ function App(props) {
         </List>
       </Grid.Column>
       <Grid.Column
-        style={{ paddingRight: 0, paddingLeft: 0 }}
+        style={{
+          paddingRight: 0,
+          paddingLeft: 0,
+          backgroundColor: '#00acff24'
+        }}
         width="13"
-        style={{ backgroundColor: '#00acff24' }}
       >
         <Container style={{ padding: 30 }}>
           <Route exact path="/" component={Landing} />
           <Route
             exact
             path="/settings"
-            component={() => <Settings folderInfo={folderInfo} />}
+            render={() => <Settings folderInfo={folderInfo} />}
           />
           <Route
             exact
             path="/create-project"
-            component={() => (
+            render={() => (
               <CreateProject
                 emitFolderInfo={emitFolderInfo}
                 socket={socket}
@@ -173,7 +176,15 @@ function App(props) {
           <Route
             exact
             path="/projects/:name"
-            component={() => <Projects socket={socket} />}
+            render={() =>
+              instanceStatus && (
+                <Projects
+                  socket={socket}
+                  instanceStatus={instanceStatus}
+                  setInstanceStatus={setInstanceStatus}
+                />
+              )
+            }
           />
         </Container>
       </Grid.Column>
