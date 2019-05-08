@@ -22,10 +22,22 @@ function App(props) {
   const [folderInfo, setFolderInfo] = React.useState({
     payload: []
   });
+  const [instanceStatus, setInstanceStatus] = React.useState({});
 
   function updateFolderInfo(data) {
+    const folders = data.payload;
+    let instances = {};
     setFolderInfo(data);
+
+    folders.forEach(folder => {
+      instances[folder] = {
+        status: 'stop'
+      };
+    });
+
+    setInstanceStatus(instances);
   }
+  console.log(instanceStatus);
 
   function emitFolderInfo(ioSocket) {
     ioSocket.emit('get:folderInfo');
@@ -97,7 +109,11 @@ function App(props) {
           {folderInfo.payload.map((dir, index) => (
             <List.Item
               key={index}
-              className="folder_info__list__item"
+              className={
+                instanceStatus[dir] && instanceStatus[dir].status === 'start'
+                  ? 'folder_info__list__item__start'
+                  : 'folder_info__list__item__stop'
+              }
               onClick={() => props.history.push(`/projects/${dir}`)}
               style={{
                 padding: 20,

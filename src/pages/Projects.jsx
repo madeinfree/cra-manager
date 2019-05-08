@@ -20,22 +20,25 @@ function Projects(props) {
   const [deps, setDeps] = React.useState([]);
   const [version, setVersion] = React.useState('');
   const [installDepName, setInstallDepName] = React.useState('');
-  function updateLogs(data) {
-    setLogs(state => {
-      return state.concat(data.message);
-    });
-    if (data.message.indexOf('Something is already') >= 0) {
-      setListening(false);
-      setPortIsAlready(true);
-    } else if (data.message.indexOf('PROCESS IS KILLED') >= 0) {
-      setListening(false);
-    } else {
-      setPortIsAlready(false);
-    }
-    if (data.message.indexOf('----END----')) {
-      props.socket.emit('get:projectDeps', { name });
-    }
-  }
+  const updateLogsCallback = React.useCallback(
+    function updateLogs(data) {
+      setLogs(state => {
+        return state.concat(data.message);
+      });
+      if (data.message.indexOf('Something is already') >= 0) {
+        setListening(false);
+        setPortIsAlready(true);
+      } else if (data.message.indexOf('PROCESS IS KILLED') >= 0) {
+        setListening(false);
+      } else {
+        setPortIsAlready(false);
+      }
+      if (data.message.indexOf('----END----')) {
+        props.socket.emit('get:projectDeps', { name });
+      }
+    },
+    [name, props.socket]
+  );
   function updateDeps(data) {
     setVersion(data.message.version);
     setDeps(
@@ -48,17 +51,17 @@ function Projects(props) {
   React.useEffect(() => {
     if (props.socket && !props.socket.hasListeners('echo:createLogs')) {
       props.socket.addEventListener('echo:projectDeps', updateDeps);
-      props.socket.addEventListener('echo:createLogs', updateLogs);
+      props.socket.addEventListener('echo:createLogs', updateLogsCallback);
       props.socket.emit('get:projectDeps', { name });
       return () => {
         props.socket.emit('projectKill', {
           name
         });
         props.socket.removeEventListener('echo:projectDeps', updateDeps);
-        props.socket.removeEventListener('echo:createLogs', updateLogs);
+        props.socket.removeEventListener('echo:createLogs', updateLogsCallback);
       };
     }
-  }, []);
+  }, [name, props.socket, updateLogsCallback]);
   return (
     <Segment placeholder>
       <Header icon>

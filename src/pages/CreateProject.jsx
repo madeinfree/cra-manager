@@ -27,7 +27,7 @@ export default function CreateProject(props) {
       return () =>
         props.socket.removeEventListener('echo:createLogs', updateLogs);
     }
-  }, []);
+  }, [props.socket]);
 
   return (
     <div>

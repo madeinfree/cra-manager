@@ -1,7 +1,6 @@
-.folder_info__list__item {
-  background-color: #000;
-  transition: all 1s;
-}
-.folder_info__list__item:hover {
+.folder_info__list__item__stop {
   background-color: #cfcfcf;
+}
+.folder_info__list__item__start {
+  background-color: rgb(21, 189, 77);
 }
