@@ -96,7 +96,7 @@ function App(props) {
           </Button>
         </div>
         <div style={{ textAlign: 'center', color: '#ccc', marginTop: 10 }}>
-          version 0.0.2 <br />
+          version 0.0.3 <br />
           Design by{' '}
           <a
             style={{ color: '#ccc' }}
